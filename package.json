@@ -1,12 +1,13 @@
 {
   "name": "conveyor",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "src/algoritm.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "algoritm": "ts-node src/algoritm.ts"
+    "start": "node dist/algoritm.js",
+    "algoritm": "ts-node src/algoritm.ts",
+    "alg": "ts-node src/algoritm.js"
   },
   "keywords": [],
   "author": "",
