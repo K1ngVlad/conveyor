@@ -27,19 +27,14 @@ class ConveyerService {
 
   getResult = async (
     payments: PaymentEntity[],
-    providers: ProviderEntity[],
-    step: number = 0,
-    offset: number = 0
+    providers: ProviderEntity[]
   ): Promise<ResultEntity[]> => {
     await convertService.setRatesFromData();
     this.initProvidersSum(providers);
 
-    const result = payments
-      .slice(
-        offset,
-        step > payments.length - offset ? payments.length : step + offset
-      )
-      .map((payment) => this.getResultItem(payment, providers));
+    const result = payments.map((payment) =>
+      this.getResultItem(payment, providers)
+    );
     return result;
   };
 
