@@ -54,10 +54,8 @@ class CSVService {
   readPayments = async (): Promise<PaymentEntity[]> => {
     try {
       const data = <PaymentEntity[]>await this.read(this.paymentsPath_1);
-      console.log('Data read from CSV:', data);
       return data;
     } catch (error) {
-      console.error('Error processing CSV files:', error);
       return [];
     }
   };
@@ -65,10 +63,8 @@ class CSVService {
   readProviders = async (): Promise<ProviderEntity[]> => {
     try {
       const data = <ProviderEntity[]>await this.read(this.providersPath_1);
-      console.log('Data read from CSV:', data);
       return data;
     } catch (error) {
-      console.error('Error processing CSV files:', error);
       return [];
     }
   };
@@ -76,7 +72,6 @@ class CSVService {
   readRates = async (): Promise<RateEntity[]> => {
     try {
       const data = <RateEntity[]>await this.read(this.exRatesPath);
-      console.log(data);
       return data;
     } catch (error) {
       console.error(error);

@@ -1,5 +1,6 @@
 import express from 'express';
-import { csvService } from './services';
+import { conveyerService, csvService } from './services';
+import { ResultEntity } from './entities';
 
 async function startServer() {
   const app = express();
@@ -14,9 +15,16 @@ async function startServer() {
 
   app.get('/test', async (req, res, next) => {
     try {
-      csvService.readRates();
+      const payments = await csvService.readPayments();
+      const providers = await csvService.readProviders();
+
+      const data = await conveyerService.getResult(payments, providers);
+
+      await csvService.writeResult(data);
+
       res.send('Message');
     } catch (e) {
+      console.error(e);
       next(e);
     }
   });
