@@ -7,7 +7,7 @@ import {
   RateEntity,
   ResultEntity,
 } from '../entities';
-import { Row } from '@fast-csv/format';
+import { format, Row } from '@fast-csv/format';
 
 class CSVService {
   readonly dataDirectory = path.join(__dirname, '../data');
@@ -44,6 +44,7 @@ class CSVService {
 
   write = async (filePath: string, data: Row[]) => {
     const writableStream = fs.createWriteStream(filePath);
+
     return new Promise((resolve, reject) => {
       writeToStream(writableStream, data, { headers: true })
         .on('finish', resolve)
@@ -53,7 +54,7 @@ class CSVService {
 
   readPayments = async (): Promise<PaymentEntity[]> => {
     try {
-      const data = <PaymentEntity[]>await this.read(this.paymentsPath_1);
+      const data = <PaymentEntity[]>await this.read(this.paymentsPath_2);
       return data;
     } catch (error) {
       return [];
@@ -62,7 +63,7 @@ class CSVService {
 
   readProviders = async (): Promise<ProviderEntity[]> => {
     try {
-      const data = <ProviderEntity[]>await this.read(this.providersPath_1);
+      const data = <ProviderEntity[]>await this.read(this.providersPath_2);
       return data;
     } catch (error) {
       return [];

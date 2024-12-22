@@ -8,15 +8,30 @@ import { convertService } from './convert.service';
 
 class ConveyerService {
   providersSum: Map<string, number> = new Map<string, number>();
+  providersData: Map<string, ProviderEntity> = new Map<
+    string,
+    ProviderEntity
+  >();
 
   clearProvidersSum = () => {
     this.providersSum.clear();
+  };
+
+  clearProvidersData = () => {
+    this.providersData.clear();
   };
 
   initProvidersSum = (providers: ProviderEntity[]) => {
     this.clearProvidersSum();
     providers.forEach((provider) => {
       this.providersSum.set(provider.ID, 0);
+    });
+  };
+
+  initProvidersData = (providers: ProviderEntity[]) => {
+    this.clearProvidersData();
+    providers.forEach((provider) => {
+      this.providersData.set(provider.ID, provider);
     });
   };
 
@@ -31,33 +46,61 @@ class ConveyerService {
   ): Promise<ResultEntity[]> => {
     await convertService.setRatesFromData();
     this.initProvidersSum(providers);
-
+    this.initProvidersData(providers);
+    const providersIds = providers.map((provider) => provider.ID);
+    const uniqueProvidersIds = [...new Set(providersIds)];
     const result = payments.map((payment) =>
-      this.getResultItem(payment, providers)
+      this.getResultItem(payment, uniqueProvidersIds)
     );
     return result;
   };
 
   getResultItem = (
     payment: PaymentEntity,
-    providers: ProviderEntity[]
+    providersIds: string[]
   ): ResultEntity => {
-    const selectedProviders = this.selectProviders(payment, providers);
-    if (!selectedProviders.length) return { ...payment, flow: '' };
+    const selectedProvidersIds = this.selectProviders(payment, providersIds);
 
-    const ratedProviders: RatedProviderEntity[] = providers.map((provider) => {
-      const profit = this.calculateProfit(payment, provider);
-      const customerSatisfaction = this.calculateCustomerSatisfaction(provider);
-      const fillingProvider = this.calculateFillingProvider(payment, provider);
+    if (!selectedProvidersIds.length) return { ...payment, flow: '' };
 
-      const overallProviderRating = this.getOverallRate(
-        profit,
-        customerSatisfaction,
-        fillingProvider
-      );
+    const ratedProviders: RatedProviderEntity[] = selectedProvidersIds.map(
+      (providerId) => {
+        const provider = this.providersData.get(providerId);
 
-      return { ...provider, RATING: overallProviderRating };
-    });
+        if (!provider) {
+          return {
+            TIME: '',
+            ID: '',
+            CONVERSION: 0,
+            AVG_TIME: 0,
+            MIN_SUM: 0,
+            MAX_SUM: 0,
+            LIMIT_MIN: 0,
+            LIMIT_MAX: 0,
+            LIMIT_BY_CARD: '-',
+            COMMISSION: 0,
+            CURRENCY: '',
+            RATING: 0,
+          };
+        }
+
+        const profit = this.calculateProfit(payment, provider);
+        const customerSatisfaction =
+          this.calculateCustomerSatisfaction(provider);
+        const fillingProvider = this.calculateFillingProvider(
+          payment,
+          provider
+        );
+
+        const overallProviderRating = this.getOverallRate(
+          profit,
+          customerSatisfaction,
+          fillingProvider
+        );
+
+        return { ...provider, RATING: overallProviderRating };
+      }
+    );
 
     const sortedProviders = ratedProviders.sort((a, b) => b.RATING - a.RATING);
 
@@ -108,16 +151,23 @@ class ConveyerService {
       }
     }
 
-    const idsString = ids.join(', ');
+    const idsString = ids.join('-');
 
-    return { ...payment, flow: idsString };
+    return {
+      ...payment,
+      flow: idsString,
+    };
   };
 
   selectProviders = (
     payment: PaymentEntity,
-    providers: ProviderEntity[]
-  ): ProviderEntity[] => {
-    return providers.filter((provider) => {
+    providersIds: string[]
+  ): string[] => {
+    return providersIds.filter((providerId) => {
+      const provider = this.providersData.get(providerId);
+
+      if (!provider) return false;
+
       if (provider.CONVERSION < 0.1) return false;
 
       if (provider.AVG_TIME > 120) return false;
@@ -130,7 +180,7 @@ class ConveyerService {
       )
         return false;
 
-      const providerSum = this.providersSum.get(provider.ID);
+      const providerSum = this.providersSum.get(providerId);
 
       if (!providerSum && providerSum !== 0) return false;
 
@@ -156,7 +206,7 @@ class ConveyerService {
   };
 
   calculateCustomerSatisfaction = (provider: ProviderEntity) => {
-    const timeOffset = 10;
+    const timeOffset = 14;
     const timeDiff = 4;
 
     const normalizeTimeFactor =
@@ -191,9 +241,9 @@ class ConveyerService {
     customerSatisfaction: number,
     fillingProvider: number
   ): number => {
-    const profit_k = 0.6;
-    const customer_k = 0.3;
-    const provider_k = 0.1;
+    const profit_k = 0.5;
+    const customer_k = 0.2;
+    const provider_k = 0.3;
 
     const overallProviderRating =
       profit *
