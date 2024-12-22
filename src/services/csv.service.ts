@@ -11,7 +11,6 @@ import { format, Row } from '@fast-csv/format';
 
 class CSVService {
   readonly dataDirectory = path.join(__dirname, '../data');
-
   readonly paymentsPath_1: string = path.join(
     this.dataDirectory,
     'payments_1.csv'
@@ -27,6 +26,11 @@ class CSVService {
   readonly providersPath_2: string = path.join(
     this.dataDirectory,
     'providers_2.csv'
+  );
+  readonly paymentsPath: string = path.join(this.dataDirectory, 'payments.csv');
+  readonly providersPath: string = path.join(
+    this.dataDirectory,
+    'providers.csv'
   );
   readonly exRatesPath: string = path.join(this.dataDirectory, 'ex_rates.csv');
   readonly resultPath: string = path.join(this.dataDirectory, 'result.csv');
@@ -54,7 +58,7 @@ class CSVService {
 
   readPayments = async (): Promise<PaymentEntity[]> => {
     try {
-      const data = <PaymentEntity[]>await this.read(this.paymentsPath_2);
+      const data = <PaymentEntity[]>await this.read(this.paymentsPath);
       return data;
     } catch (error) {
       return [];
@@ -63,7 +67,7 @@ class CSVService {
 
   readProviders = async (): Promise<ProviderEntity[]> => {
     try {
-      const data = <ProviderEntity[]>await this.read(this.providersPath_2);
+      const data = <ProviderEntity[]>await this.read(this.providersPath);
       return data;
     } catch (error) {
       return [];

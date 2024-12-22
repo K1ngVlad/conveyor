@@ -23,6 +23,8 @@ class CSVService {
         this.paymentsPath_2 = path_1.default.join(this.dataDirectory, 'payments_2.csv');
         this.providersPath_1 = path_1.default.join(this.dataDirectory, 'providers_1.csv');
         this.providersPath_2 = path_1.default.join(this.dataDirectory, 'providers_2.csv');
+        this.paymentsPath = path_1.default.join(this.dataDirectory, 'payments.csv');
+        this.providersPath = path_1.default.join(this.dataDirectory, 'providers.csv');
         this.exRatesPath = path_1.default.join(this.dataDirectory, 'ex_rates.csv');
         this.resultPath = path_1.default.join(this.dataDirectory, 'result.csv');
         this.read = (filePath) => __awaiter(this, void 0, void 0, function* () {
@@ -45,7 +47,7 @@ class CSVService {
         });
         this.readPayments = () => __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this.read(this.paymentsPath_2);
+                const data = yield this.read(this.paymentsPath);
                 return data;
             }
             catch (error) {
@@ -54,7 +56,7 @@ class CSVService {
         });
         this.readProviders = () => __awaiter(this, void 0, void 0, function* () {
             try {
-                const data = yield this.read(this.providersPath_2);
+                const data = yield this.read(this.providersPath);
                 return data;
             }
             catch (error) {
